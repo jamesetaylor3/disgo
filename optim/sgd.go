@@ -1,11 +1,11 @@
 package optim
 
 import (
-	"disgo"
-	"disgo/mat"
 	"fmt"
 	"time"
 	"sync"
+	"disgo"
+	"disgo/mat"
 )
 
 type SGD struct {
@@ -20,14 +20,12 @@ type SGD struct {
 func (o SGD) Run() disgo.Parameters {
 
 	var (
-		batchCounter        int
-		totalIterations     int
-		wg                  sync.WaitGroup
-	    counterMutex        sync.Mutex
-		parametersMutex     sync.Mutex
+		batchCounter    int
+		totalIterations int
+		wg              sync.WaitGroup
+	    counterMutex    sync.Mutex
+		parametersMutex sync.Mutex
 	)
-
-	// add a batch counter that is set ++ and moduloed by len(o.Input) / p.BatchSize blah blah
 
 	p := o.Optimizer.ExportSGDHyperparameters()
 
@@ -46,8 +44,6 @@ func (o SGD) Run() disgo.Parameters {
 				grad = o.Model.Backward(o.Input[batchCounter*p.BatchSize:(batchCounter+1)*p.BatchSize], o.Target[batchCounter*p.BatchSize:(batchCounter+1)*p.BatchSize])
 
 				o.Optimizer.Step(current_parameters, grad, &parametersMutex)
-
-
 				o.Model.SetParameters(current_parameters)
 
 				counterMutex.Lock()
@@ -65,7 +61,6 @@ func (o SGD) Run() disgo.Parameters {
 				}
 
 				// have a precision break as well
-
 				if totalIterations >= p.MaxIterations {
 					wg.Done()
 					break
@@ -73,7 +68,6 @@ func (o SGD) Run() disgo.Parameters {
 			}
 		}()
 	}
-
 	wg.Wait()
 
 	if o.Loud {

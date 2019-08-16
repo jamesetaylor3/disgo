@@ -12,28 +12,27 @@ const (
 
 // add multiorder at some point
 type LogisticRegressionModel struct {
-    Input [][]float64
-    Target []float64
-    Criterion metrics.Criterion
-    Optimizer optim.Optimizer
+    Input      [][]float64
+    Target     []float64
+    Criterion  metrics.Criterion
+    Optimizer  optim.Optimizer
     Parameters disgo.Parameters
-    Bias bool
-    dimension int
+    Bias       bool
 }
 
 func (m *LogisticRegressionModel) Optimize() disgo.Parameters {
 
     if m.Bias { m.Input = AddBiasTermToInputTable(m.Input) }
 
-    m.dimension = len(m.Input[0])
+    dimension := len(m.Input[0])
 
-    m.Parameters = make([]float64, len(m.Input[0]))
+    m.Parameters = make(disgo.Parameters, dimension)
 
     parameters := optim.SGD{
         Input: m.Input,
         Target: m.Target,
         Optimizer: m.Optimizer,
-        Dimension: m.dimension,
+        Dimension: dimension,
         Loud: true,
         Model: m,
     }.Run()
@@ -71,6 +70,8 @@ func (m *LogisticRegressionModel) Backward(input [][]float64, target []float64) 
     for i := range input {
         pred[i] = m.Forward(input[i])
     }
+
+    input = AddBiasTermToInputTable(input)
 
     return m.Criterion.Gradient(input, pred, target)
 }

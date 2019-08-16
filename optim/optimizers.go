@@ -8,10 +8,6 @@ import (
     "runtime"
 )
 
-// See if can condense the SGD Parameters into one method using an empty interface as see two comments below
-// Look at the thingy implemented by Pablo arranz to see if you can have an empty interface work
-// https://stackoverflow.com/questions/31505587/how-can-two-different-types-implement-the-same-method-in-golang-using-interfaces
-
 const (
     VANILLA_GRADIENT_DECENT_DEFAULT_LEARNING_RATE = 1e-2
     ADAM_DEFAULT_LEARNING_RATE                    = 1e-3
@@ -48,7 +44,6 @@ type VanillaGradientDescent struct {
     NumRoutines   int
 }
 
-// Maybe update all of the gradients and put for loop in here. may be faster
 func (u *VanillaGradientDescent) Step(parameters disgo.Parameters, grad disgo.Gradient, mutex *sync.Mutex) {
 
     if u.LearningRate == 0 { u.LearningRate = VANILLA_GRADIENT_DECENT_DEFAULT_LEARNING_RATE }
@@ -79,7 +74,6 @@ func (u *VanillaGradientDescent) String() string {
     return fmt.Sprintf("Vanilla Gradient Descent (LR: %.3e)", u.LearningRate)
 }
 
-// Presently the adam optimizer has awful performance
 type Adam struct {
     LearningRate  float64
     Beta_1        float64
@@ -195,7 +189,7 @@ func (u *RMSProp) Step(parameters disgo.Parameters, grad disgo.Gradient, mutex *
     if len(u.v) == 0 {
         u.v = make([]float64, len(parameters))
     }
-    // fmt.Println(grad)
+
     for i := 0; i < len(parameters); i++ {
         u.v[i] = u.Gamma * u.v[i] + (1 - u.Gamma) * math.Pow(grad[i], 2)
         update := grad[i] * u.LearningRate / math.Sqrt(u.v[i])

@@ -1,4 +1,2 @@
 .DS_Store
-/_preprocessing/
-/_tensorwsparse/
-/_trees/
+/_*/

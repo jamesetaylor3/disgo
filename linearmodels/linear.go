@@ -7,23 +7,24 @@ import (
 )
 
 type LinearRegressionModel struct {
-    Input [][]float64
-    Target []float64
-    Criterion metrics.Criterion
-    Optimizer optim.Optimizer
+    Input      [][]float64
+    Target     []float64
+    Criterion  metrics.Criterion
+    Optimizer  optim.Optimizer
     Parameters disgo.Parameters
-    Bias bool
-    dimension int
+    Bias       bool
 }
 
 func (m *LinearRegressionModel) Optimize() disgo.Parameters {
 
-    if m.Bias { m.dimension = len(m.Input[0]) + 1 } else { m.dimension = len(m.Input[0]) }
+    if m.Bias { m.Input = AddBiasTermToInputTable(m.Input) }
 
-    m.Parameters = make(disgo.Parameters, m.dimension)
+    dimension := len(m.Input[0])
+
+    m.Parameters = make(disgo.Parameters, dimension)
 
     parameters := optim.SGD{
-        Dimension: m.dimension,
+        Dimension: dimension,
         Input: m.Input,
         Target: m.Target,
         Loud: true,
@@ -49,13 +50,11 @@ func (m *LinearRegressionModel) Predict(test_input [][]float64) []float64 {
 func (m *LinearRegressionModel) Forward(xs []float64) float64 {
     var y float64
 
-    if m.Bias { xs = AddBiasTermToInput(xs) }
+    if len(xs) != len(m.Input[0]) { xs = AddBiasTermToInput(xs) }
 
-    for i, x_i := range xs {
-        y += x_i * m.Parameters[i]
+    for i := range m.Parameters {
+        y += xs[i] * m.Parameters[i]
     }
-
-    // if m.Bias { y += m.Parameters[len(m.Parameters)-1] }
 
     return y
 }
