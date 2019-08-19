@@ -21,12 +21,10 @@ type Minimizer struct {
 	InitialParameters disgo.Parameters
 	MaxIterations     int
 	Precision         float64
-	Loud              bool // Maybe only keep this option for testing
+	Loud              bool
 }
 
-// Maybe make this pointer but bug if so in linear regression <------- loook
 func (o Minimizer) Run() disgo.Parameters {
-
 	start := time.Now()
 
 	if o.GradientFunc == nil { o.GradientFunc = NumericalGradient(o.Function) }
@@ -54,19 +52,16 @@ func (o Minimizer) Run() disgo.Parameters {
 	}
 
 	return current_parameters
-
 }
 
 func NumericalGradient(function func(disgo.Parameters) float64) func(disgo.Parameters) disgo.Gradient {
 	return func(parameters disgo.Parameters) disgo.Gradient {
-		//return num_grad(function, p)
 		var top, bottom, slope float64
 
 		grad := make(disgo.Gradient, len(parameters))
 		parameters_H := make(disgo.Parameters, len(parameters))
 		copy(parameters_H, parameters)
 
-		// This whole indexes business for the prev_i is a mess--consider changing please
 		parameters_H[len(parameters)-1] += H_DERIVATIVE
 
 		for i, _ := range parameters {
@@ -77,7 +72,6 @@ func NumericalGradient(function func(disgo.Parameters) float64) func(disgo.Param
 			bottom = H_DERIVATIVE
 			slope = top / bottom
 			grad[i] = slope
-
 		}
 		return grad
 	}

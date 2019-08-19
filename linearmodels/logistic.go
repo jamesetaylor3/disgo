@@ -18,23 +18,25 @@ type LogisticRegressionModel struct {
     Optimizer  optim.Optimizer
     Parameters disgo.Parameters
     Bias       bool
+    inputDim   int
 }
 
-func (m *LogisticRegressionModel) Optimize() disgo.Parameters {
+func (m *LogisticRegressionModel) Fit(input [][]float64, target []float64, maxIterations int) disgo.Parameters {
 
-    if m.Bias { m.Input = AddBiasTermToInputTable(m.Input) }
+    if m.Bias { input = AddBiasTermToInputTable(input) }
 
-    dimension := len(m.Input[0])
+    m.inputDim = len(input[0])
 
-    m.Parameters = make(disgo.Parameters, dimension)
+    m.Parameters = make(disgo.Parameters, m.inputDim)
 
     parameters := optim.SGD{
-        Input: m.Input,
-        Target: m.Target,
+        Input: input,
+        Target: target,
         Optimizer: m.Optimizer,
-        Dimension: dimension,
+        Dimension: m.inputDim,
         Loud: true,
         Model: m,
+        MaxIterations: maxIterations,
     }.Run()
 
     return parameters
@@ -55,10 +57,12 @@ func (m *LogisticRegressionModel) Predict(test_input [][]float64) []float64 {
 func (m *LogisticRegressionModel) Forward(xs []float64) float64 {
     var y float64
 
-    if len(xs) != len(m.Input[0]) { xs = AddBiasTermToInput(xs) }
+    if len(xs) != m.inputDim {
+        xs = AddBiasTermToInput(xs)
+    }
 
-    for i, x_i := range xs {
-        y += x_i * m.Parameters[i]
+    for i := range xs {
+        y += xs[i] * m.Parameters[i]
     }
 
     return disgo.Sigmoid(y)
@@ -71,7 +75,9 @@ func (m *LogisticRegressionModel) Backward(input [][]float64, target []float64) 
         pred[i] = m.Forward(input[i])
     }
 
-    input = AddBiasTermToInputTable(input)
+    if m.Bias {
+        input = AddBiasTermToInputTable(input)
+    }
 
     return m.Criterion.Gradient(input, pred, target)
 }

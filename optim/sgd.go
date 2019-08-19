@@ -10,11 +10,12 @@ import (
 
 type SGD struct {
 	Optimizer
-	Model     disgo.Model
-	Dimension int
-	Loud      bool
-	Input     [][]float64
-	Target    []float64
+	Model         disgo.Model
+	Dimension     int
+	Loud          bool
+	Input         [][]float64
+	Target        []float64
+	MaxIterations int
 }
 
 func (o SGD) Run() disgo.Parameters {
@@ -51,7 +52,7 @@ func (o SGD) Run() disgo.Parameters {
 				batchCounter = (batchCounter + 1) % (inputLength / p.BatchSize)
 				counterMutex.Unlock()
 
-				if o.Loud && (totalIterations % (p.MaxIterations / 10) == 0) {
+				if o.Loud && (totalIterations % (o.MaxIterations / 10) == 0) {
 					// Print precision when we get it to work to act as a performance of the model
 					fmt.Printf("Iteration: %8.f, Time %s\n", float64(totalIterations), time.Now().Sub(start))
 				}
@@ -61,7 +62,7 @@ func (o SGD) Run() disgo.Parameters {
 				}
 
 				// have a precision break as well
-				if totalIterations >= p.MaxIterations {
+				if totalIterations >= o.MaxIterations {
 					wg.Done()
 					break
 				}

@@ -13,7 +13,7 @@ type Gradient []float64
 type Model interface{
     Forward([]float64) float64
     Backward([][]float64, []float64) Gradient
-    Optimize() Parameters
+    Fit([][]float64, []float64, int) Parameters
     Predict([][]float64) []float64
     SetParameters(Parameters)
 }

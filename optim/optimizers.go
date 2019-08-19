@@ -20,10 +20,7 @@ const (
     RMSPROP_DEFAULT_GAMMA                         = 0.9
 )
 
-const (
-    DEFAULT_BATCH_SIZE      = 1
-    DEFAULT_MAX_INTERATIONS = 100000
-)
+const DEFAULT_BATCH_SIZE = 1
 
 type Optimizer interface {
     Step(disgo.Parameters, disgo.Gradient, *sync.Mutex)
@@ -33,14 +30,12 @@ type Optimizer interface {
 
 type SGDHyperparameters struct {
     BatchSize     int
-    MaxIterations int
     NumRoutines   int
 }
 
 type VanillaGradientDescent struct {
     LearningRate  float64
     BatchSize     int
-    MaxIterations int
     NumRoutines   int
 }
 
@@ -60,12 +55,10 @@ func (u *VanillaGradientDescent) Step(parameters disgo.Parameters, grad disgo.Gr
 func (u *VanillaGradientDescent) ExportSGDHyperparameters() SGDHyperparameters {
 
     if u.BatchSize == 0     { u.BatchSize = DEFAULT_BATCH_SIZE }
-    if u.MaxIterations == 0 { u.MaxIterations = DEFAULT_MAX_INTERATIONS }
     if u.NumRoutines == 0   { u.NumRoutines = runtime.GOMAXPROCS(0) }
 
     return SGDHyperparameters{
         BatchSize: u.BatchSize,
-        MaxIterations: u.MaxIterations,
         NumRoutines: u.NumRoutines,
     }
 }
@@ -81,7 +74,6 @@ type Adam struct {
     m, v          []float64
     m_hat, v_hat  []float64
     BatchSize     int
-    MaxIterations int
     NumRoutines   int
 }
 
@@ -115,12 +107,10 @@ func (u *Adam) Step(parameters disgo.Parameters, grad disgo.Gradient, mutex *syn
 func (u *Adam) ExportSGDHyperparameters() SGDHyperparameters {
 
     if u.BatchSize == 0     { u.BatchSize = DEFAULT_BATCH_SIZE }
-    if u.MaxIterations == 0 { u.MaxIterations = DEFAULT_MAX_INTERATIONS }
     if u.NumRoutines == 0   { u.NumRoutines = runtime.GOMAXPROCS(0) }
 
     return SGDHyperparameters{
         BatchSize: u.BatchSize,
-        MaxIterations: u.MaxIterations,
         NumRoutines: u.NumRoutines,
     }
 }
@@ -134,7 +124,6 @@ type Momentum struct {
     Gamma         float64
     v             []float64
     BatchSize     int
-    MaxIterations int
     NumRoutines   int
 }
 
@@ -158,12 +147,10 @@ func (u *Momentum) Step(parameters disgo.Parameters, grad disgo.Gradient, mutex 
 func (u *Momentum) ExportSGDHyperparameters() SGDHyperparameters {
 
     if u.BatchSize == 0     { u.BatchSize = DEFAULT_BATCH_SIZE }
-    if u.MaxIterations == 0 { u.MaxIterations = DEFAULT_MAX_INTERATIONS }
     if u.NumRoutines == 0   { u.NumRoutines = runtime.GOMAXPROCS(0) }
 
     return SGDHyperparameters{
         BatchSize: u.BatchSize,
-        MaxIterations: u.MaxIterations,
         NumRoutines: u.NumRoutines,
     }
 }
@@ -177,7 +164,6 @@ type RMSProp struct {
     Gamma         float64
     v             []float64
     BatchSize     int
-    MaxIterations int
     NumRoutines   int
 }
 
@@ -202,12 +188,10 @@ func (u *RMSProp) Step(parameters disgo.Parameters, grad disgo.Gradient, mutex *
 func (u *RMSProp) ExportSGDHyperparameters() SGDHyperparameters {
 
     if u.BatchSize == 0     { u.BatchSize = DEFAULT_BATCH_SIZE }
-    if u.MaxIterations == 0 { u.MaxIterations = DEFAULT_MAX_INTERATIONS }
     if u.NumRoutines == 0   { u.NumRoutines = runtime.GOMAXPROCS(0) }
 
     return SGDHyperparameters{
         BatchSize: u.BatchSize,
-        MaxIterations: u.MaxIterations,
         NumRoutines: u.NumRoutines,
     }
 }

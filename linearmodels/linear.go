@@ -7,29 +7,31 @@ import (
 )
 
 type LinearRegressionModel struct {
-    Input      [][]float64
-    Target     []float64
+    // Input      [][]float64
+    // Target     []float64
     Criterion  metrics.Criterion
     Optimizer  optim.Optimizer
     Parameters disgo.Parameters
     Bias       bool
+    inputDim   int
 }
 
-func (m *LinearRegressionModel) Optimize() disgo.Parameters {
+func (m *LinearRegressionModel) Fit(input [][]float64, target []float64, maxIterations int) disgo.Parameters {
 
-    if m.Bias { m.Input = AddBiasTermToInputTable(m.Input) }
+    if m.Bias { input = AddBiasTermToInputTable(input) }
 
-    dimension := len(m.Input[0])
+    m.inputDim = len(input[0])
 
-    m.Parameters = make(disgo.Parameters, dimension)
+    m.Parameters = make(disgo.Parameters, m.inputDim)
 
     parameters := optim.SGD{
-        Dimension: dimension,
-        Input: m.Input,
-        Target: m.Target,
+        Dimension: m.inputDim,
+        Input: input,
+        Target: target,
         Loud: true,
         Optimizer: m.Optimizer,
         Model: m,
+        MaxIterations: maxIterations,
     }.Run()
 
     return parameters
@@ -50,7 +52,7 @@ func (m *LinearRegressionModel) Predict(test_input [][]float64) []float64 {
 func (m *LinearRegressionModel) Forward(xs []float64) float64 {
     var y float64
 
-    if len(xs) != len(m.Input[0]) { xs = AddBiasTermToInput(xs) }
+    if len(xs) != m.inputDim { xs = AddBiasTermToInput(xs) }
 
     for i := range m.Parameters {
         y += xs[i] * m.Parameters[i]
@@ -66,7 +68,9 @@ func (m *LinearRegressionModel) Backward(input [][]float64, target []float64) di
         pred[i] = m.Forward(input[i])
     }
 
-    input = AddBiasTermToInputTable(input)
+    if m.Bias {
+        input = AddBiasTermToInputTable(input)
+    }
 
     return m.Criterion.Gradient(input, pred, target)
 }

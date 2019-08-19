@@ -10,14 +10,17 @@ import (
 
 // Convert to tensor once all things are good with it
 type KMeans struct {
-    Input         [][]float64
-    NumClusters   int
-    MaxIterations int
-    labels        []int
-    centroids     [][]float64
+    NumClusters int
+    labels      []int
+    centroids   [][]float64
 }
 
-func (k *KMeans) Optimize() [][]float64 {
+func (k *KMeans) Fit(input [][]float64, maxIterations int) [][]float64 {
+    if k.NumClusters == 0 {
+        err := errors.New("Cannot fit k means! NumClusters is either \"0\" or undefined!")
+        panic(err)
+    }
+
     var (
         distance    float64
         minDistance float64
@@ -25,8 +28,8 @@ func (k *KMeans) Optimize() [][]float64 {
 
     numsOfEachLabel := make([]float64, len(k.centroids))
     k.centroids = make([][]float64, k.NumClusters)
-    k.labels = make([]int, len(k.Input))
-    bounds := getInputBounds(k.Input)
+    k.labels = make([]int, len(input))
+    bounds := getInputBounds(input)
 
     for i := 0; i < k.NumClusters; i++ {
         k.centroids[i] = make([]float64, len(bounds))
@@ -35,9 +38,9 @@ func (k *KMeans) Optimize() [][]float64 {
 
     prevCentroids := make([][]float64, k.NumClusters)
 
-    for iter := 0; iter < 1000; iter++ {
+    for iter := 0; iter < maxIterations; iter++ {
         numsOfEachLabel = make([]float64, len(k.centroids))
-        for i, observation := range k.Input {
+        for i, observation := range input {
             minDistance = math.MaxFloat64
             for j, centroid := range k.centroids {
                 distance = EuclideanDistance(observation, centroid)
@@ -59,7 +62,7 @@ func (k *KMeans) Optimize() [][]float64 {
 
         for i, label := range k.labels {
             for j := range k.centroids[label] {
-                k.centroids[label][j] += k.Input[i][j] / numsOfEachLabel[label]
+                k.centroids[label][j] += input[i][j] / numsOfEachLabel[label]
             }
         }
 

@@ -22,11 +22,11 @@ func (nn *Sequential) Backward(input *tensor.Tensor) (out *tensor.Tensor) {
         fmt.Print(i)
     }
     fmt.Println()
-    
+
     return
 }
 
-func (nn *Sequential) Optimize() *tensor.Tensor {
+func (nn *Sequential) Fit() *tensor.Tensor {
     return &tensor.Tensor{}
 }
 
