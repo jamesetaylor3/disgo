@@ -21,7 +21,7 @@ type LogisticRegressionModel struct {
     inputDim   int
 }
 
-func (m *LogisticRegressionModel) Fit(input [][]float64, target []float64, maxIterations int) disgo.Parameters {
+func (m *LogisticRegressionModel) Fit(input [][]float64, target []float64, maxIterations uint64) disgo.Parameters {
 
     if m.Bias { input = AddBiasTermToInputTable(input) }
 

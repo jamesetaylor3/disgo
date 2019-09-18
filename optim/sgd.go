@@ -6,6 +6,7 @@ import (
 	"sync"
 	"disgo"
 	"disgo/mat"
+	"sync/atomic"
 )
 
 type SGD struct {
@@ -15,16 +16,15 @@ type SGD struct {
 	Loud          bool
 	Input         [][]float64
 	Target        []float64
-	MaxIterations int
+	MaxIterations uint64
 }
 
 func (o SGD) Run() disgo.Parameters {
 
 	var (
 		batchCounter    int
-		totalIterations int
+		totalIterations uint64
 		wg              sync.WaitGroup
-	    counterMutex    sync.Mutex
 		parametersMutex sync.Mutex
 	)
 
@@ -47,10 +47,8 @@ func (o SGD) Run() disgo.Parameters {
 				o.Optimizer.Step(current_parameters, grad, &parametersMutex)
 				o.Model.SetParameters(current_parameters)
 
-				counterMutex.Lock()
-				totalIterations++
+				atomic.AddUint64(&totalIterations, 1)
 				batchCounter = (batchCounter + 1) % (inputLength / p.BatchSize)
-				counterMutex.Unlock()
 
 				if o.Loud && (totalIterations % (o.MaxIterations / 10) == 0) {
 					// Print precision when we get it to work to act as a performance of the model
